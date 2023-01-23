@@ -10,7 +10,7 @@ import {
 
 export default function App() {
   return (
-    <SafeAreaView>
+    <SafeAreaView style={estilos.container}>
       <StatusBar>
         <TextInput
           style={estilos.nomeLocal}
@@ -27,6 +27,9 @@ export default function App() {
 }
 
 const estilos = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   campo: {
     flex: 1,
   },
