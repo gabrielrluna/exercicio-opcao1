@@ -11,6 +11,7 @@ import * as ImagePicker from "expo-image-picker";
 import { useState, useEffect } from "react";
 import MapView, { Marker } from "react-native-maps";
 import * as Location from "expo-location";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function ImagePickerExample() {
   //UseState usado para a parte da localização
@@ -32,9 +33,12 @@ export default function ImagePickerExample() {
         await Location.requestForegroundPermissionsAsync();
       requestPermissionLocation(locationStatus === "granted");
 
-      let localizacaoAtual = await Location.getCurrentPositionAsync({});
-      console.log("Status: " + statusLocation.statusLocation);
-      setMinhaLocalizacao(localizacaoAtual);
+      // let localizacaoAtual = await Location.getCurrentPositionAsync({});
+      Location.getCurrentPositionAsync({}).then((localizacaoAtual) => {
+        // console.log("Status: " + locationStatus);
+        console.log(localizacaoAtual);
+        setMinhaLocalizacao(localizacaoAtual);
+      });
     }
 
     verificaPermissoes();
@@ -62,11 +66,22 @@ export default function ImagePickerExample() {
 
   const marcarLocal = (event) => {
     setLocalizacao({
-      latitudeDelta: 0.0922,
-      longitudeDelta: 0.0421,
+      latitudeDelta: 0.0122,
+      longitudeDelta: 0.021,
       latitude: minhaLocalizacao.coords.latitude,
       longitude: minhaLocalizacao.coords.longitude,
     });
+  };
+
+  const salvarInfos = async () => {
+    try {
+      await AsyncStorage.setItem(
+        "minhaLocalizacao",
+        JSON.stringify({ minhaLocalizacao, foto })
+      );
+    } catch (error) {
+      console.log(error.message);
+    }
   };
 
   return (
@@ -89,36 +104,31 @@ export default function ImagePickerExample() {
       <View style={estilos.viewMapa}>
         <MapView
           style={estilos.mapa}
-          region={localizacao ?? regiaoInicial}
+          region={regiaoInicial}
           liteMode={false}
           mapType="standard"
         >
-          {/* {localizacao && (
+          {localizacao && (
             <Marker
               coordinate={localizacao}
               title="Aqui!!!"
               onPress={(e) => console.log(e.nativeEvent)}
             />
-          )} */}
+          )}
         </MapView>
       </View>
-      {minhaLocalizacao && (
-        <Button
-          title="Marcar no Mapa"
-          style={estilos.botaoMapa}
-          onPress={marcarLocal}
-        />
-        { localizacao &&
-          <Marker 
-            coordinate={localizacao} 
-            title="Aqui!!!"
-            onPress={ e => console.log(e.nativeEvent) }
+      <View>
+        {minhaLocalizacao && (
+          <Button
+            onPress={marcarLocal}
+            title="Achar minha localização"
+            style={estilos.botaoMapa}
           />
-        }
+        )}
+      </View>
 
-      )}
-
-      <Button title="Salvar Informações" />
+      <Button title="Salvar Informações" onPress={salvarInfos} />
+      <Button title="Locais Visitados" />
       <StatusBar style="auto" />
     </SafeAreaView>
   );
@@ -160,40 +170,3 @@ const estilos = StyleSheet.create({
     borderWidth: 1,
   },
 });
-
-// import { StatusBar } from "expo-status-bar";
-// import {
-//   StyleSheet,
-//   Text,
-//   View,
-//   Button,
-//   TextInput,
-//   SafeAreaView,
-// } from "react-native";
-
-// export default function App() {
-//   return (
-//     <SafeAreaView style={estilos.container}>
-//       <StatusBar>
-//         <TextInput
-//           style={estilos.nomeLocal}
-//           // value={value}
-//           placeholder="Digite o nome do local"
-//         />
-
-//         <Button style={estilos.botaoFoto} />
-
-//         <Button style={estilos.botaoMapa} />
-//       </StatusBar>
-//     </SafeAreaView>
-//   );
-// }
-
-// const estilos = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//   },
-//   campo: {
-//     flex: 1,
-//   },
-// });
